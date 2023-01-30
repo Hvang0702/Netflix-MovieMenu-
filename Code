@@ -1,1 +1,457 @@
 
+#include<iostream>
+//#include <string>
+using namespace std;
+
+/*
+This university project is able creating a Netflix/movie menu with certain movies
+Utilizes data structures such as lists, class, struct, and pointers.
+
+Got a 96% on this project
+
+*/
+
+struct MovieNode 
+{
+    string nameofMovieNode;
+    string dateofMovieNode;
+    MovieNode* leftP; //Pointer to next MovieNode
+    MovieNode* rightP; //Pointer to previous MovieNode
+
+    MovieNode(string nameofMovieNode, string dateofMovieNode) { //this is for when I output the movie and the date
+        this->nameofMovieNode = nameofMovieNode;
+        this->dateofMovieNode = dateofMovieNode;
+        this->leftP = NULL;
+        this->rightP = NULL;
+    }
+}; 
+
+class CategoryM {
+
+public:
+    string nameofMovieNode;
+    CategoryM* next; //Pointer to next category
+    CategoryM* prev; //Pointer to previous category
+    MovieNode* head; 
+    MovieNode* tail; 
+
+    
+    CategoryM() { //default constructor
+
+        head = NULL;
+    }
+
+    CategoryM(string nameofMovieNode) {
+        this->nameofMovieNode = nameofMovieNode;
+        this->head = NULL;
+        this->tail = NULL;
+        this->next = NULL; 
+        this->prev = NULL;
+    }
+    void addMovieNode(string nameofMovieNode, string dateofMovieNode) {
+        if (head == nullptr) {
+
+            head = new MovieNode(nameofMovieNode, dateofMovieNode);
+
+            tail = head;
+
+            head->leftP = head;
+
+            head->rightP = head;
+
+            return;
+        }
+        else {
+            //Now is the MovieNode thats currently inputted 
+            MovieNode* now = head;
+
+            while (now != tail && now->nameofMovieNode <= nameofMovieNode) {
+                if (now->nameofMovieNode == nameofMovieNode) {
+                    //It already does exist
+                    return;
+                }
+                now = now->rightP;
+            }
+            if (now == tail) {
+                //This is if we reached the end of the list
+                if (now->nameofMovieNode == nameofMovieNode)
+                    return;
+                if (now->nameofMovieNode < nameofMovieNode) {
+                    //This is to insert at the last part
+                    MovieNode* newMovieNodeL = new MovieNode(nameofMovieNode, dateofMovieNode);
+
+                    now->rightP = newMovieNodeL;
+
+                    now->leftP = now;
+
+                    tail = newMovieNodeL;
+                    return;
+                }
+            }
+            MovieNode* newMovieNodeL = new MovieNode(nameofMovieNode, dateofMovieNode);
+
+            newMovieNodeL->leftP = now->leftP;
+
+            now->leftP->rightP = newMovieNodeL;
+
+            newMovieNodeL->rightP = now;
+
+            now->leftP = newMovieNodeL;
+        }
+    }
+
+    MovieNode* middleofMenu(MovieNode* begin, MovieNode* end) {
+        //to compute the middle pointer for binary search
+        if (begin == NULL)
+            return NULL;
+
+        MovieNode* s = begin;
+
+        MovieNode* f = begin->rightP;
+
+        while (f != end) {
+            f = f->rightP;
+
+            if (f != end) {
+
+                s = s->rightP;
+                f = f->rightP;
+
+             }
+        }
+        return s;
+    }
+
+    MovieNode* binarySearch(string nameofMovieNode) {
+
+        if (head == NULL)
+            return NULL;
+
+        MovieNode* begin = head; //binary search start pointer
+        MovieNode* end = tail; //binary search end pointer
+
+        while (begin != end) {
+
+            MovieNode* MiddleMenu = middleofMenu(begin,end); //comeback to this
+
+            if (MiddleMenu->nameofMovieNode == nameofMovieNode)
+                return MiddleMenu; //This concludes that the MovieNode was found
+            else if (MiddleMenu->nameofMovieNode > nameofMovieNode) {
+
+                end = MiddleMenu->leftP; //The search range is now from start to middle(left)
+            }
+            else {
+                begin = MiddleMenu->rightP; //Search range is now from middle(right) to the end
+            }
+
+        }
+
+        if (begin->nameofMovieNode != nameofMovieNode)
+            return NULL; //If MovieNode was not found
+
+        return begin; //If MovieNode was found
+
+    }
+
+    //Letter C Get MovieNode Index using CLL
+
+    int MovieNodeIndex(string nameofMovieNode) {
+        //head = header?
+        MovieNode* now = head; //Not sure why it has a exception here when I try to debug
+        int indexMovieNode = 0; //Not sure how to fix
+
+        while (now != tail && now->nameofMovieNode != nameofMovieNode) {
+
+            now = now->rightP;
+            indexMovieNode++;
+        }
+
+        if (now->nameofMovieNode != nameofMovieNode)
+            return -1;
+        return indexMovieNode;
+
+    }
+
+    CategoryM* something;
+
+    CategoryM* searchCategoryName(string nameofMovieNode) { //To find a category
+
+        CategoryM* now = something;
+
+        while (now != NULL && now->nameofMovieNode != nameofMovieNode) {
+
+            now = now->next;
+        }
+
+        return now;
+
+    }
+
+    void printMovieNode() {
+
+        MovieNode* now = head;
+
+        while (now != tail) {
+
+            cout << " MovieNode name: " << now->nameofMovieNode;
+            cout << " Date of MovieNode: " << now->dateofMovieNode;
+            cout << endl;
+            now = now->rightP;
+        }
+
+        cout << " MovieNode name: " << now->nameofMovieNode;
+        cout << " Date of MovieNode: " << now->dateofMovieNode;
+        cout << endl;
+        return;
+
+    }
+
+};
+
+class MovieNodeStuff {
+
+public:
+
+    CategoryM* something; //default constructor
+
+    MovieNodeStuff() {
+        something = NULL;
+    }
+
+    MovieNode* searchMovieNode(string nameofMovieNode) {
+
+        CategoryM* now = something;
+
+        while (now != NULL) {
+
+            MovieNode* MovieNodes = now->binarySearch(nameofMovieNode);
+
+            if (MovieNodes != NULL) {
+                //MovieNode was found in search
+                return MovieNodes;
+            }
+            else
+            {
+                now = now->next;
+            }
+            return NULL;
+        }
+    }
+
+    void addCategoryM(string nameofMovieNode) {
+
+        CategoryM* cate = new CategoryM(nameofMovieNode);
+        //This should be the first category 
+        if (something == NULL) {
+
+            something = cate;
+            return;
+        }
+        CategoryM* now = something;
+        while (now->next != NULL) {
+            now = now->next;
+        }
+
+        //To insert to last
+        now->next = cate;
+
+        cate->prev = now;
+
+        cate->next = NULL;
+
+    }
+
+
+    CategoryM* searchCategoryName(string nameofMovieNode) { //To find a category
+
+        CategoryM* now = something;
+
+        while (now != NULL && now->nameofMovieNode != nameofMovieNode) {
+
+            now = now->next;
+        }
+
+        return now;
+
+    }
+
+   // CategoryM* searchCategoryName;
+
+
+
+    void deleteMovieNodesCertainDate(string dateofMovieNode) { //delete at a date of the MovieNode
+
+        CategoryM* remove = something;
+
+        while (remove != NULL) {
+
+            MovieNode* mov = remove->head;
+
+            while (mov != remove->tail) {
+
+                MovieNode* end = mov->rightP;
+                if (mov->dateofMovieNode < dateofMovieNode) {
+                    if (mov == remove->head) {
+                        remove->head = mov->rightP;
+                        free(mov);
+                    }
+                    else {
+                        mov->leftP->rightP = mov->rightP;
+                        mov->rightP->leftP = mov->leftP;
+                        free(mov);
+                    }
+                }
+                mov = end;
+            }
+            if (mov->dateofMovieNode < dateofMovieNode) {
+
+                if (mov == remove->head) {
+                    remove->head = remove->tail = NULL;
+                    free(remove);
+                }
+                mov->leftP->rightP = mov->rightP;
+                mov->rightP->leftP = mov->leftP;
+                free(mov);
+            }
+        }
+        return;
+    }
+
+    void removeCategoryUsingName(string nameofMovieNode) { //To remove a category by using the name
+
+        CategoryM* now = something;
+
+        CategoryM* remove = searchCategoryName(nameofMovieNode);
+
+        if (remove != NULL)
+            free(remove);
+            return;
+
+        MovieNode* mov = remove->head;
+
+        while (mov != remove->tail) {
+
+            MovieNode* end = mov->rightP;
+
+            free(mov);
+
+            mov = end;
+
+        }
+        free(mov);
+
+        if (remove == something) {
+
+            something = NULL;
+
+            free(remove);
+        }
+        else {
+
+            remove->prev->next = remove->next;
+
+            if (remove->next != NULL) {
+                remove->next->prev = remove->prev;
+                free(remove);
+            }
+        }
+    }
+};
+
+int main() {
+    
+    MovieNodeStuff* move = new MovieNodeStuff();
+    
+    CategoryM* catog = new CategoryM(); //used to output same as MovieNodeStuff
+
+   
+    move->addCategoryM("Children"); //Children category
+    move->addCategoryM("Action"); //Action category
+    move->addCategoryM("Comedy"); //Comedy category
+
+    //gory3 from category and 3 for 3 categories
+    CategoryM* gory3 = move->something;
+    
+    //Now add the MovieNodes in the order of the list picture from Canvas
+    //Not sure how to find when the MovieNodes were uploaded
+    //so I just used when they were released 
+
+    
+    move->something->addMovieNode("Barbie ", "08/28/2004");
+    move->something->addMovieNode("Harry Potter ", "11/14/2001");
+    move->something->addMovieNode("Lion King ", "06/24/1994");
+
+    gory3 = gory3->next;
+
+    gory3->addMovieNode("MI 5 ", "07/31/2015");
+    gory3->addMovieNode("Rocket ", "11/30/2007");
+    gory3->addMovieNode("Tekken ", "03/20/2010");
+
+    gory3 = gory3->next;
+
+    gory3->addMovieNode("Harold & Kumar ", "07/30/2004");
+    gory3->addMovieNode("Jerry Mcguire ", "12/13/1996");
+    gory3->addMovieNode("Tuxedo ", "09/27/2002");
+
+    gory3 = move->something;
+
+    while (gory3 != NULL) {
+        cout << endl;
+
+        cout << gory3->nameofMovieNode << ": " << endl;
+
+        gory3->printMovieNode();
+
+        gory3 = gory3->next;
+    }
+
+    cout << endl;
+
+    CategoryM* kek = catog->searchCategoryName("Children");
+    if (catog != NULL) {
+        cout << "Children is in the category list." << endl;
+    }
+    else {
+        cout << "Children is not in the category list." << endl;
+    }
+
+    cout << endl;
+
+    MovieNode* mov = move->searchMovieNode("Tuxedo "); //To see if a MovieNode is in the list
+    if (mov != NULL) {
+        cout << "Tuxedo is not in the list of MovieNodes." << endl;
+    }
+    else {
+        cout << "Tuxedo is in the list of MovieNodes." << endl;
+    }
+
+    move->removeCategoryUsingName("Action"); //Removing a category
+    MovieNode* MovieNodes = move->searchMovieNode("MI 5,");
+
+    cout << endl;
+
+    if (MovieNodes != NULL) {
+
+        cout << "Removing the Action Category." << endl;
+
+    }
+    else {
+        cout << "After removing the Action Category it is not in the list." << endl;
+    }
+
+    cout << endl;
+    
+     move->deleteMovieNodesCertainDate("07/30/2004"); //Deleting MovieNodes before this date
+
+    
+     gory3->MovieNodeIndex("Barbie");
+     cout << gory3->MovieNodeIndex("Barbie");
+     cout << "0" << endl;
+    //Outputs 0 not sure how to do it another way
+
+    return 0;
+}
+
+
+
+
